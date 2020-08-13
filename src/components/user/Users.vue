@@ -64,7 +64,7 @@
                         <el-button type="danger" icon="el-icon-delete" @click=removeUserById(scope.row.id)  circle></el-button>
                         </el-tooltip>
                         <el-tooltip class="item" effect="dark" content="点击修改" placement="top">
-                            <el-button type="warning" icon="el-icon-setting" circle></el-button>
+                            <el-button type="warning" @click="setRole(scope.row)" icon="el-icon-setting" circle></el-button>
                         </el-tooltip>
 
                     </template>
@@ -123,7 +123,34 @@
         <el-button type="primary" @click="editUserInfo">确 定</el-button>
       </span>
             </el-dialog>
+<!--            分配角色对话框-->
+            <el-dialog
+                    title="提示"
+                    :visible.sync="setRoleDialogVisible"
+                    width="30%">
+                <div>
+                    <p>当前的用户:{{userInfo.username}}</p>
+                    <p>当前的角色:{{userInfo.role_name}}</p>
+                    <p>
+                        分配新角色
+                        <template>
+                            <el-select v-model="selectedRoleId" placeholder="请选择">
+                                <el-option
+                                        v-for="item in roleList"
+                                        :key="item.id"
+                                        :label="item.roleName"
+                                        :value="item.id">
+                                </el-option>
+                            </el-select>
+                        </template>
+                    </p>
 
+                </div>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="setRoleDialogClosed">取 消</el-button>
+                    <el-button type="primary" @click="saveRoleInfo">确 定</el-button>
+                </span>
+            </el-dialog>
         </el-card>
 
 
@@ -168,7 +195,11 @@
                 },
                 userlist:[],
                 total: 0,
+                setRoleDialogVisible: false,
                 dialogVisible: false,
+                userInfo: '',
+                roleList:'',
+                selectedRoleId:'',
                 //添加用户的表单数据
                 addForm: {
                     username: '',
@@ -328,9 +359,40 @@
                     return this.$message.error('删除用户失败！')
                 }
 
-                this.$message.success('删除用户成功！')
+                this.$message.success('删除用户成功！');
                 this.getUserList()
             },
+           async setRole(userInfo){
+               this.userInfo = userInfo;
+               //在展示对话框之前获取角色的列表
+                const {data:res} = await this.$http.get('roles');
+                if(res.meta.status !== 200){
+                    return this.$message.error('获取角色列表错误');
+                }
+                this.roleList = res.data;
+               this.setRoleDialogVisible = true;
+           },
+           async saveRoleInfo(){
+                   if(!this.selectedRoleId){
+                       return this.$message.error('请选择一个角色');
+                   }
+                  const {data:res} = await this.$http.put(`users/${this.userInfo.id}/role`,{
+                      rid: this.selectedRoleId
+                  });
+                   if(res.meta.status !== 200){
+                       return this.$message.error('保存失败');
+                   }
+                   this.$message.success('分配成功');
+                   this.setRoleDialogVisible = false;
+                   this.setRoleDialogClosed();
+                    this.getUserList()
+
+           },
+            setRoleDialogClosed(){
+              this.selectedRoleId = '';
+              this.roleList = '';
+              this.setRoleDialogVisible = false;
+            }
 
         }
     }

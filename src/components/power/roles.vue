@@ -111,52 +111,52 @@
                    return this.$message.info('取消删除');
                }
 
-           const {data:res} = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
-            if(res.meta.status !== 200){
-                return this.$message.error('删除权限失败');
-            }
-            //防止列表的刷新
-            role.children = res.data;
-            this.$message.success('删除成功');
-            },
-            async showRightDialog(role){
-               this.roleId = role.id;
-               //获取所有权限的数据
-                const { data: res } = await this.$http.get('rights/tree');
+        const {data:res} = await this.$http.delete(`roles/${role.id}/rights/${rightId}`);
+        if(res.meta.status !== 200){
+            return this.$message.error('删除权限失败');
+        }
+        //防止列表的刷新
+        role.children = res.data;
+        this.$message.success('删除成功');
+        },
+        async showRightDialog(role){
+           this.roleId = role.id;
+           //获取所有权限的数据
+            const { data: res } = await this.$http.get('rights/tree');
 
-                if (res.meta.status !== 200) {
-                    return this.$message.error('获取权限数据失败！')
-                }
-                this.rightList = res.data;
-                this.getLeafKeys(role, this.defKeys);
-                this.setRightDialogVisible = true;
-            },
-            getLeafKeys(node, arr){
-               if(!node.children){
-                   return arr.push(node.id);
-               }
-               node.children.forEach(item => this.getLeafKeys(item, arr));
-            },
-            setRightDialogClosed(){
-               this.defKeys = []
-            },
-            async allotRights(){
-               const keys = [
-                       ...this.$refs.treeRef.getCheckedKeys(),
-                       ...this.$refs.treeRef.getHalfCheckedKeys(),
-
-               ];
-               const idStr = keys.join(',');
-               const {data:res} = await this.$http.post(`roles/${this.roleId}/rights`,{
-                   rids: idStr
-               });
-               if(res.meta.status !== 200){
-                   return this.$message.error('分配权限失败');
-               }
-               this.getRolesList();
-                this.$message.success('分配权限成功');
-               this.setRightDialogVisible = false;
+            if (res.meta.status !== 200) {
+                return this.$message.error('获取权限数据失败！')
             }
+            this.rightList = res.data;
+            this.getLeafKeys(role, this.defKeys);
+            this.setRightDialogVisible = true;
+        },
+        getLeafKeys(node, arr){
+           if(!node.children){
+               return arr.push(node.id);
+           }
+           node.children.forEach(item => this.getLeafKeys(item, arr));
+        },
+        setRightDialogClosed(){
+           this.defKeys = []
+        },
+        async allotRights(){
+           const keys = [
+                   ...this.$refs.treeRef.getCheckedKeys(),
+                   ...this.$refs.treeRef.getHalfCheckedKeys(),
+
+           ];
+           const idStr = keys.join(',');
+           const {data:res} = await this.$http.post(`roles/${this.roleId}/rights`,{
+               rids: idStr
+           });
+           if(res.meta.status !== 200){
+               return this.$message.error('分配权限失败');
+           }
+           this.getRolesList();
+            this.$message.success('分配权限成功');
+           this.setRightDialogVisible = false;
+        }
 
 
         }
