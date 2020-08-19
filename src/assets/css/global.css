@@ -12,7 +12,7 @@ html, body, #app{
 }
 
 .el-card{
-    box-shadow: 0 1px 1px rgb(0,0,0.15);
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15) !important;
 }
 
 .el-table{
@@ -27,4 +27,14 @@ html, body, #app{
     height: 300px;
 }
 
+.el-steps{
+    margin: 15px 0;
+}
 
+.el-tab-pane{
+    height: 800px;
+}
+
+.ql-editor{
+    min-height: 300px;
+}
